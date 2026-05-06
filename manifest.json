@@ -1,0 +1,44 @@
+{
+  "name": "Al-Noor — Quran & Hadith",
+  "short_name": "Al-Noor",
+  "description": "Read Quran with translation, browse Hadith, get prayer times. Built by Aaqib Jeelani.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#184d3f",
+  "theme_color": "#1e6f5c",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["education", "lifestyle", "religion"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open Quran",
+      "short_name": "Quran",
+      "description": "Jump to Quran reading",
+      "url": "./index.html#tab=quran",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Prayer Times",
+      "short_name": "Prayer",
+      "description": "View prayer times",
+      "url": "./index.html#tab=prayer",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tasbeeh Counter",
+      "short_name": "Tasbeeh",
+      "description": "Open Dhikr counter",
+      "url": "./index.html#tab=tasbeeh",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": []
+}

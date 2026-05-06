@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e6f5c">
+  <title>Al-Noor — Offline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(160deg, #1e6f5c 0%, #184d3f 60%, #0f2f27 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: #fff;
+      text-align: center;
+    }
+    .offline-icon {
+      font-size: 5rem;
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+    h1 span { color: #e9c46a; }
+    .arabic { font-family: 'Amiri', serif; font-size: 1.4rem; opacity: 0.8; margin-bottom: 16px; direction: rtl; }
+    p { font-size: 0.95rem; opacity: 0.75; max-width: 320px; line-height: 1.6; margin-bottom: 32px; }
+    .btn {
+      background: #e9c46a;
+      color: #184d3f;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn:active { transform: scale(0.95); }
+    .cached-note {
+      margin-top: 24px;
+      font-size: 0.8rem;
+      opacity: 0.55;
+      max-width: 280px;
+    }
+    .status-dot {
+      width: 10px; height: 10px;
+      background: #ef4444;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+    .back-btn {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 14px;
+      padding: 12px 24px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+  <div class="offline-icon">📵</div>
+  <h1>Al-<span>Noor</span></h1>
+  <div class="arabic">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+  <p>
+    <span class="status-dot"></span>You are currently offline.<br>
+    Please check your internet connection to load new content.
+  </p>
+  <button class="btn" onclick="window.location.reload()">🔄 Try Again</button>
+  <button class="back-btn" onclick="window.history.back()">← Go Back</button>
+  <div class="cached-note">
+    Previously visited surahs and hadith may still be available — go back to the app and try navigating there.
+  </div>
+
+  <script>
+    // Auto-reload when back online
+    window.addEventListener('online', () => window.location.reload());
+  </script>
+</body>
+</html>

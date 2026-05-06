@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- PWA / Theme -->
+    <meta name="theme-color" content="#1e6f5c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Al-Noor">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Al-Noor">
+    <meta name="msapplication-TileColor" content="#1e6f5c">
+    <meta name="msapplication-tap-highlight" content="no">
+
+    <!-- SEO -->
+    <title>Al-Noor — Quran & Hadith | Aaqib Jeelani</title>
+    <meta name="description"
+        content="Al-Noor: Read Quran with translation, browse Hadith collections, get accurate prayer times, and more. Built by Aaqib Jeelani.">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+
+    <!-- Splash screens for iOS -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;700&family=Outfit:wght@400;600;700;800&family=Scheherazade+New:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="quran.css">
+
+    <style>
+        /* ── PWA INSTALL BANNER ─────────────────────────── */
+        #installBanner {
+            position: fixed;
+            bottom: calc(var(--nav-height) + var(--safe-bottom) + 20px);
+            left: 50%;
+            transform: translateX(-50%) translateY(250%);
+            width: calc(100% - 24px);
+            max-width: 450px;
+            background: linear-gradient(135deg, #1e6f5c 0%, #184d3f 100%);
+            color: #fff;
+            border-radius: 18px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            z-index: 100002;
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s, visibility 0.4s;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+        }
+
+        #installBanner.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+
+        #installBanner .install-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        #installBanner .install-text {
+            flex: 1;
+        }
+
+        #installBanner .install-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        #installBanner .install-sub {
+            font-size: 0.78rem;
+            opacity: 0.85;
+            line-height: 1.3;
+        }
+
+        #installBanner .install-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        #installBannerBtn {
+            background: #e9c46a;
+            color: #184d3f;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        #installBannerBtn:active {
+            transform: scale(0.95);
+        }
+
+        #installBannerDismiss {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            text-align: center;
+        }
+
+        /* Auto-hide if already installed */
+        @media (display-mode: standalone) {
+
+            #installBanner,
+            .install-banner {
+                display: none !important;
+            }
+
+            #settingsInstallBtn {
+                display: none !important;
+            }
+
+            #settingsInstallInfo {
+                display: block !important;
+            }
+        }
+
+        /* ── PWA UPDATE BANNER ──────────────────────────── */
+        #updateBanner {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-200%);
+            width: calc(100% - 24px);
+            max-width: 450px;
+            background: linear-gradient(135deg, #f4a261, #e76f51);
+            color: #fff;
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            z-index: 100000;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #updateBanner.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #updateBanner span {
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        #updateBtn {
+            background: #fff;
+            color: #e76f51;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        /* ── OFFLINE INDICATOR ──────────────────────────── */
+        #offlineIndicator {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-200%);
+            background: #ef4444;
+            color: #fff;
+            border-radius: 20px;
+            padding: 7px 18px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 100001;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+        }
+
+        #offlineIndicator.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ── iOS INSTALL GUIDE MODAL ────────────────────── */
+        #iosInstallModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 99999;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(4px);
+        }
+
+        #iosInstallModal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #iosInstallSheet {
+            background: var(--card);
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px calc(24px + var(--safe-bottom));
+            width: 100%;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #iosInstallModal.active #iosInstallSheet {
+            transform: translateY(0);
+        }
+
+        .ios-step {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ios-step:last-child {
+            border-bottom: none;
+        }
+
+        .ios-step-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .ios-step-text {
+            font-size: 0.92rem;
+            line-height: 1.4;
+            color: var(--text);
+        }
+
+        .ios-step-text strong {
+            color: var(--primary);
+        }
+
+        /* ── SPLASH SCREEN ──────────────────────────────── */
+        #splashScreen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(160deg, #1e6f5c 0%, #184d3f 60%, #0f2f27 100%);
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #splashScreen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .splash-logo {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: splashPulse 1.5s ease-in-out infinite;
+            overflow: hidden;
+            padding: 15px;
+        }
+
+        .splash-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        @keyframes splashPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 12px 48px rgba(30, 111, 92, 0.5);
+            }
+        }
+
+        .splash-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .splash-title span {
+            color: #e9c46a;
+        }
+
+        .splash-sub {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+        }
+
+        .splash-loader {
+            width: 48px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .splash-loader-bar {
+            height: 100%;
+            background: #e9c46a;
+            border-radius: 2px;
+            animation: splashLoad 1.8s ease-in-out forwards;
+        }
+
+        @keyframes splashLoad {
+            0% {
+                width: 0%;
+            }
+
+            60% {
+                width: 80%;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ── SPLASH SCREEN ──────────────────────────── -->
+    <div id="splashScreen">
+        <div class="splash-logo"><img src="icons/icon-512.png" alt="Al-Noor Logo"></div>
+        <div class="splash-title">Al-<span>Noor</span></div>
+        <div class="splash-sub">النور — The Light</div>
+        <div class="splash-loader">
+            <div class="splash-loader-bar"></div>
+        </div>
+    </div>
+
+    <!-- ── OFFLINE INDICATOR ──────────────────────── -->
+    <div id="offlineIndicator">📵 You are offline</div>
+
+    <!-- ── UPDATE BANNER ──────────────────────────── -->
+    <div id="updateBanner">
+        <span>🔄 New version available!</span>
+        <button id="updateBtn" onclick="reloadForUpdate()">Update</button>
+    </div>
+
+    <!-- ── INSTALL BANNER ─────────────────────────── -->
+    <div id="installBanner">
+        <div class="install-icon">📲</div>
+        <div class="install-text">
+            <div class="install-title">Install Al-Noor</div>
+            <div class="install-sub">Add to home screen for the best experience</div>
+        </div>
+        <div class="install-actions">
+            <button id="installBannerBtn">Install</button>
+            <button id="installBannerDismiss">Later</button>
+        </div>
+    </div>
+
+    <!-- ── iOS INSTALL GUIDE ───────────────────────── -->
+    <div id="iosInstallModal" onclick="closeIosModal(event)">
+        <div id="iosInstallSheet">
+            <div style="text-align:center; margin-bottom: 20px;">
+                <div style="font-size:1.1rem; font-weight:800; color:var(--text);">Install Al-Noor on iOS</div>
+                <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Follow these steps to add to
+                    your Home Screen</div>
+            </div>
+            <div class="ios-step">
+                <div class="ios-step-icon">⬆️</div>
+                <div class="ios-step-text">Tap the <strong>Share</strong> button at the bottom of your Safari browser
+                </div>
+            </div>
+            <div class="ios-step">
+                <div class="ios-step-icon">➕</div>
+                <div class="ios-step-text">Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+            </div>
+            <div class="ios-step">
+                <div class="ios-step-icon">✅</div>
+                <div class="ios-step-text">Tap <strong>"Add"</strong> in the top-right corner — done!</div>
+            </div>
+            <button onclick="closeIosModal()"
+                style="width:100%;margin-top:16px;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:14px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'Outfit',sans-serif;">Got
+                it!</button>
+        </div>
+    </div>
+
+    <div class="status-bar"></div>
+
+    <!-- App Header -->
+    <header class="app-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="header-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+            <div>
+                <div class="app-title">Al-<span>Noor</span></div>
+                <div style="font-size: 0.7rem; opacity: 0.8;">by Aaqib Jeelani</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn" id="darkToggleBtn" onclick="toggleDarkMode()"
+                aria-label="Toggle Dark Mode">🌙</button>
+            <button class="header-btn" onclick="showSearch()" aria-label="Search">🔍</button>
+            <button class="header-btn" onclick="openSettingsModal()" aria-label="Settings">⚙️</button>
+        </div>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar-panel" id="sidebarPanel">
+        <div class="sidebar-header">
+            <div class="sidebar-title">📑 Surah List</div>
+            <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+        </div>
+        <div class="sidebar-list" id="sidebarList"></div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-area" id="mainArea">
+        <!-- Prayer Times Card -->
+        <div class="prayer-card">
+            <div class="prayer-header-row">
+                <div class="prayer-location">
+                    <span>📍</span>
+                    <span id="prayerLocationLabel">Loading location...</span>
+                </div>
+                <button class="prayer-settings-btn" onclick="openPrayerModal()">⚙️ Settings</button>
+            </div>
+            <div class="prayer-grid" id="prayerGrid">
+                <div class="prayer-box">
+                    <div class="prayer-name">Fajr</div>
+                    <div class="prayer-time">--:--</div>
+                </div>
+                <div class="prayer-box">
+                    <div class="prayer-name">Sunrise</div>
+                    <div class="prayer-time">--:--</div>
+                </div>
+                <div class="prayer-box">
+                    <div class="prayer-name">Dhuhr</div>
+                    <div class="prayer-time">--:--</div>
+                </div>
+                <div class="prayer-box">
+                    <div class="prayer-name">Asr</div>
+                    <div class="prayer-time">--:--</div>
+                </div>
+                <div class="prayer-box">
+                    <div class="prayer-name">Maghrib</div>
+                    <div class="prayer-time">--:--</div>
+                </div>
+                <div class="prayer-box">
+                    <div class="prayer-name">Isha</div>
+                    <div class="prayer-time">--:--</div>
+                </div>
+            </div>
+            <div class="next-prayer-bar">
+                <div>
+                    <div class="next-label">Next Prayer</div>
+                    <div class="next-time" id="nextPrayerName">–</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="hijri-date" id="hijriDateDisplay">-- --- ----</div>
+                    <div class="countdown" id="prayerCountdown">–</div>
+                </div>
+            </div>
+        </div>
+        <div id="dynamicContent"></div>
+    </main>
+
+    <!-- ── PRAYER SETTINGS MODAL ─────────────────── -->
+    <div class="modal-overlay" id="prayerModal" onclick="closePrayerModal(event)">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">🕌 Prayer Time Settings</div>
+                <button class="modal-close" onclick="closePrayerModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <div class="setting-label">City / Location</div>
+                    <select class="setting-select" id="citySelect">
+                        <option value="34.0837,74.7973,Asia/Kolkata,Srinagar, Jammu &amp; Kashmir">Srinagar, J&amp;K
+                            (India)</option>
+                        <option value="28.6139,77.2090,Asia/Kolkata,New Delhi, India">New Delhi, India</option>
+                        <option value="19.0760,72.8777,Asia/Kolkata,Mumbai, India">Mumbai, India</option>
+                        <option value="12.9716,77.5946,Asia/Kolkata,Bengaluru, India">Bengaluru, India</option>
+                        <option value="24.8607,67.0011,Asia/Karachi,Karachi, Pakistan">Karachi, Pakistan</option>
+                        <option value="33.6844,73.0479,Asia/Karachi,Islamabad, Pakistan">Islamabad, Pakistan</option>
+                        <option value="31.5204,74.3587,Asia/Karachi,Lahore, Pakistan">Lahore, Pakistan</option>
+                        <option value="23.8103,90.4125,Asia/Dhaka,Dhaka, Bangladesh">Dhaka, Bangladesh</option>
+                        <option value="21.3891,39.8579,Asia/Riyadh,Makkah, Saudi Arabia">Makkah, Saudi Arabia</option>
+                        <option value="24.7136,46.6753,Asia/Riyadh,Riyadh, Saudi Arabia">Riyadh, Saudi Arabia</option>
+                        <option value="25.2048,55.2708,Asia/Dubai,Dubai, UAE">Dubai, UAE</option>
+                        <option value="30.0444,31.2357,Africa/Cairo,Cairo, Egypt">Cairo, Egypt</option>
+                        <option value="51.5074,-0.1278,Europe/London,London, UK">London, UK</option>
+                        <option value="48.8566,2.3522,Europe/Paris,Paris, France">Paris, France</option>
+                        <option value="40.7128,-74.0060,America/New_York,New York, USA">New York, USA</option>
+                        <option value="34.0522,-118.2437,America/Los_Angeles,Los Angeles, USA">Los Angeles, USA</option>
+                        <option value="43.6532,-79.3832,America/Toronto,Toronto, Canada">Toronto, Canada</option>
+                        <option value="custom,custom,custom,Custom Coordinates">📍 Use My Location (GPS)</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-label">Calculation Method</div>
+                    <select class="setting-select" id="methodSelect">
+                        <option value="1">University of Islamic Sciences, Karachi</option>
+                        <option value="2">Islamic Society of North America (ISNA)</option>
+                        <option value="3">Muslim World League (MWL)</option>
+                        <option value="4">Umm Al-Qura, Makkah</option>
+                        <option value="5">Egyptian General Authority of Survey</option>
+                        <option value="7">Institute of Geophysics, Tehran</option>
+                        <option value="8">Gulf Region</option>
+                        <option value="9">Kuwait</option>
+                        <option value="10">Qatar</option>
+                        <option value="11">Majlis Ugama Islam Singapura</option>
+                        <option value="12">Union Organization Islamic de France</option>
+                        <option value="13">Diyanet İşleri Başkanlığı, Turkey</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-label">Asr Calculation</div>
+                    <select class="setting-select" id="schoolSelect">
+                        <option value="1">Hanafi</option>
+                        <option value="0">Shafi'i / Hanbali / Maliki</option>
+                    </select>
+                </div>
+                <button class="setting-save-btn" onclick="savePrayerSettings()">Save Prayer Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── APP SETTINGS MODAL ───────────────────── -->
+    <div class="modal-overlay" id="settingsModal" onclick="closeSettingsModal(event)">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">⚙️ App Settings</div>
+                <button class="modal-close" onclick="closeSettingsModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <div class="setting-label">Appearance</div>
+                    <div class="toggle-row">
+                        <div>
+                            <div class="toggle-info">🌙 Dark Mode</div>
+                            <div class="toggle-sub">Easy on the eyes at night</div>
+                        </div>
+                        <button class="toggle-switch" id="darkToggle" onclick="toggleDarkMode()"></button>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-label">Font Size</div>
+                    <div class="font-size-btns">
+                        <button class="font-btn" onclick="setFontSize('small',this)">A</button>
+                        <button class="font-btn active" onclick="setFontSize('medium',this)">Aa</button>
+                        <button class="font-btn" onclick="setFontSize('large',this)"
+                            style="font-size:1.1rem">AA</button>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-label">Translation</div>
+                    <select class="setting-select" id="translationSelect" onchange="changeTranslation(this.value)">
+                        <option value="en.sahih">Sahih International (English)</option>
+                        <option value="en.pickthall">Pickthall (English)</option>
+                        <option value="en.yusufali">Yusuf Ali (English)</option>
+                        <option value="en.asad">Muhammad Asad (English)</option>
+                        <option value="ur.jalandhry">Jalandhry (Urdu)</option>
+                        <option value="ur.ahmadali">Ahmed Ali (Urdu)</option>
+                        <option value="ur.ahmedalilahoripk">Ahmed Ali Lahori (Urdu)</option>
+                        <option value="fr.hamidullah">Hamidullah (French)</option>
+                        <option value="de.bubenheim">Bubenheim (German)</option>
+                        <option value="tr.diyanet">Diyanet (Turkish)</option>
+                        <option value="id.indonesian">Indonesian</option>
+                        <option value="ru.kuliev">Kuliev (Russian)</option>
+                        <option value="zh.majian">Ma Jian (Chinese)</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-label">Reciter (Audio)</div>
+                    <select class="setting-select" id="reciterSelect" onchange="changeReciter(this.value)">
+                        <option value="ar.alafasy">Mishary Alafasy</option>
+                        <option value="ar.abdulbasitmurattal">Abdul Basit (Murattal)</option>
+                        <option value="ar.abdullahbasfar">Abdullah Basfar</option>
+                        <option value="ar.hudhaify">Ali Al-Hudhaify</option>
+                        <option value="ar.minshawi">Mohamed Siddiq Al-Minshawi</option>
+                        <option value="ar.shaatree">Abu Bakr Al-Shatri</option>
+                        <option value="ar.mahermuaiqly">Maher Al Muaiqly</option>
+                        <option value="ar.parhizgar">Parhizgar</option>
+                    </select>
+                </div>
+                <!-- PWA Install option inside settings -->
+                <div class="setting-group">
+                    <div class="setting-label">App</div>
+                    <button class="setting-save-btn" id="settingsInstallBtn" onclick="triggerInstall()"
+                        style="display:none;">📲 Install Al-Noor App</button>
+                    <div id="settingsInstallInfo" style="font-size:0.82rem;color:var(--text-muted);display:none;">✅ App
+                        is installed on your device</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Player Sheet -->
+    <div class="audio-sheet" id="audioSheet">
+        <div class="audio-info">
+            <div class="audio-surah" id="audioSurah">Select a verse</div>
+            <div class="audio-verse" id="audioVerse">Tap play on any verse</div>
+        </div>
+        <div class="audio-progress-container">
+            <div class="audio-progress" id="audioProgress"></div>
+        </div>
+        <div class="audio-controls">
+            <button class="audio-btn" onclick="stopAudio()">⏹️</button>
+            <button class="audio-btn play" onclick="togglePlay()" id="playBtn">▶️</button>
+            <button class="audio-btn" onclick="closeAudio()">✕</button>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" id="audioFab" onclick="toggleAudioSheet()">🎵</button>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('quran')" data-tab="quran">
+            <span class="nav-icon">📖</span><span>Quran</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('hadith')" data-tab="hadith">
+            <span class="nav-icon">📚</span><span>Hadith</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('search')" data-tab="search">
+            <span class="nav-icon">🔍</span><span>Search</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('bookmarks')" data-tab="bookmarks">
+            <span class="nav-icon">🔖</span><span>Saved</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tasbeeh')" data-tab="tasbeeh">
+            <span class="nav-icon">📿</span><span>Tasbeeh</span>
+        </button>
+        <button class="nav-item" onclick="toggleReadingMode()" id="navReading">
+            <span class="nav-icon">📖</span><span>Tilawat</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('about')" data-tab="about">
+            <span class="nav-icon">👤</span><span>About</span>
+        </button>
+    </nav>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Mushaf Viewer Overlay -->
+    <div class="mushaf-overlay" id="mushafOverlay">
+        <div class="mushaf-header">
+            <button class="mushaf-close-btn" onclick="closeMushaf()">✕ Exit</button>
+            <div class="mushaf-title-group" onclick="toggleMushafSelector()">
+                <div class="mushaf-title" id="mushafTitle">Surah Name</div>
+                <div class="mushaf-juz-info" id="mushafJuzInfo">Juz -- • -- pages left</div>
+            </div>
+            <button class="header-btn" onclick="toggleMushafSelector()">📑</button>
+        </div>
+        <div class="juz-progress-container">
+            <div class="juz-progress-bar" id="juzProgressBar"></div>
+        </div>
+        <div class="mushaf-selector" id="mushafSelector">
+            <div class="sidebar-header">
+                <div class="mushaf-selector-tabs">
+                    <button class="mushaf-tab active" id="tabMushafSurah"
+                        onclick="renderMushafSelector('surah')">Surah</button>
+                    <button class="mushaf-tab" id="tabMushafJuz" onclick="renderMushafSelector('juz')">Juz
+                        (Para)</button>
+                </div>
+                <button class="sidebar-close" onclick="toggleMushafSelector()">✕</button>
+            </div>
+            <div class="sidebar-list" id="mushafSelectorList"></div>
+        </div>
+        <div class="mushaf-content" id="mushafContent">
+            <div id="flipBook" class="flip-book"></div>
+        </div>
+        <div class="mushaf-footer">
+            <button class="mushaf-nav-btn" onclick="mushafPrev()">NEXT</button>
+
+            <div class="mushaf-page-info" id="mushafPageInfo">Page -- / 604</div>
+            <button class="mushaf-nav-btn" onclick="mushafNext()">PREV</button>
+
+
+        </div>
+    </div>
+
+    <!-- Generic PDF Overlay -->
+    <div class="pdf-overlay" id="pdfOverlay">
+        <div class="mushaf-header">
+            <button class="mushaf-close-btn" onclick="closePdf()">✕ Close</button>
+            <div class="mushaf-title" id="pdfViewerTitle">Document Viewer</div>
+            <a href="#" target="_blank" id="pdfViewerDownload"
+                style="color:#fff; text-decoration:none; font-size:0.8rem;">📥 Download</a>
+        </div>
+        <iframe src="" id="pdfViewerFrame" class="pdf-viewer-frame"></iframe>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+    <script src="quran.js"></script>
+    <script src="pwa.js"></script>
+</body>
+
+</html>
